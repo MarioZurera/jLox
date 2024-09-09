@@ -52,13 +52,13 @@ public class Lox {
         }
     }
 
-    static void error(int line, String message) {
-        report(line, "", message);
+    static void error(int line, String module, String message) {
+        report(line, module, message);
     }
 
     private static void report(int line, String where, String message) {
         System.err.println(
-                "[Line " + line + "] Error" + where + ": " + message
+                "[Line " + line + "] " + where + "Error: " + message
         );
         hadError = true;
     }

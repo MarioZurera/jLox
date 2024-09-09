@@ -81,7 +81,7 @@ public class Scanner {
         }
 
         if (!matchOperatorToken() && !matchLiteralToken())
-            Lox.error(line, "Unexpected token: " + current);
+            Lox.error(line, "Syntax", "Unexpected token: " + source.charAt(current - 1));
     }
 
 
@@ -146,7 +146,7 @@ public class Scanner {
             nextChar();
         }
         if (isAtEnd())
-            Lox.error(line, "Unterminated string literal");
+            Lox.error(line, "Syntax", "Unterminated string literal");
         nextChar();
 
         String literal = source.substring(start + 1, current - 1);
@@ -168,8 +168,8 @@ public class Scanner {
     private void analyzeNumber() {
         while (Character.isDigit(getNextChar()) || getNextChar() == '_') {
             char c = nextChar();
-            if (c == '_' && Character.isDigit(getNextChar()))
-                Lox.error(line, "numeric separators are not allowed at the end of numeric literals");
+            if (c == '_' && !Character.isDigit(getNextChar()))
+                Lox.error(line, "Syntax", "numeric separators are not allowed at the end of numeric literals");
         }
     }
 

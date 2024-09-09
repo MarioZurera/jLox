@@ -161,7 +161,8 @@ public class Scanner {
             analyzeNumber();
         }
 
-        Double number = Double.parseDouble(source.substring(start, current));
+        String text = source.substring(start, current).replace("_", "");
+        Double number = Double.parseDouble(text);
         addToken(TokenType.NUMBER, number);
     }
 

@@ -53,13 +53,28 @@ public class Scanner {
         //else if (c == '/')
         //    addToken(TokenType.SLASH);
         else if (c == '!')
-            addToken(TokenType.UNEQUAL);
+            addToken(matchNextChar('=') ? TokenType.UNEQUAL : TokenType.NOT);
+        else if (c == '=')
+            addToken(matchNextChar('=') ? TokenType.EQUAL : TokenType.ASSIGN);
+        else if (c == '<')
+            addToken(matchNextChar('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
+        else if (c == '>')
+            addToken(matchNextChar('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
         else
             Lox.error(line, "Unexpected token");
     }
 
     private char nextChar() {
+        if (isAtEnd())
+            return '\0';
         return source.charAt(current++);
+    }
+
+    private boolean matchNextChar(char expected) {
+        if (isAtEnd() || getNextChar() != expected)
+            return false;
+        nextChar();
+        return true;
     }
 
     private void addToken(TokenType type) {

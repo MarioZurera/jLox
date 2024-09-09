@@ -16,8 +16,11 @@ public class Token {
     @Override
     public String toString() {
         String typeText = type.toString();
-        if (typeText.length() < 4) typeText += "\t";
-        if (typeText.length() < 8) typeText += "\t";
-        return typeText + "\t\t" + lexeme;
+        if (typeText.length() < 4)
+            typeText += "\t";
+        if (typeText.length() < 8)
+            typeText += "\t";
+        String value = literal != null ? literal.toString() : lexeme;
+        return typeText + "\t\t" + value;
     }
 }

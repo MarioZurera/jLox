@@ -1,4 +1,4 @@
-package Lox;
+package lox;
 
 public enum TokenType {
     /*/ Symbols Token /*/
@@ -20,6 +20,7 @@ public enum TokenType {
     SLASH,          // /
 
     // Comparison Token //
+    NOT,            // !
     EQUAL,          // ==
     UNEQUAL,        // !=
     GREATER,        // >

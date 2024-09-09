@@ -68,20 +68,29 @@ public class Scanner {
     }
 
     private void scanToken() {
+        if (matchComment() || matchWhitespace())
+            return;
+
+        if (!matchOperatorToken() && !matchLiteralToken())
+            Lox.error(line, "Syntax", "Unexpected token: " + source.charAt(current - 1));
+    }
+
+    private boolean matchComment() {
         if (getNextChar() == '/' && get2NextChar() == '/') {
             skipLine();
-            return;
+            return true;
         }
+        return false;
+    }
 
+    private boolean matchWhitespace() {
         if (Character.isWhitespace(getNextChar())) {
             if (getNextChar() == '\n')
                 line++;
             nextChar();
-            return;
+            return true;
         }
-
-        if (!matchOperatorToken() && !matchLiteralToken())
-            Lox.error(line, "Syntax", "Unexpected token: " + source.charAt(current - 1));
+        return false;
     }
 
     private boolean matchOperatorToken() {

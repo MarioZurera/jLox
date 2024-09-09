@@ -121,7 +121,7 @@ public class Scanner {
             analyzeNumber();
         }
 
-        String number = source.substring(start, current);
+        Double number = Double.parseDouble(source.substring(start, current));
         addToken(TokenType.NUMBER, number);
     }
 

@@ -67,6 +67,8 @@ public class Scanner {
             addToken(matchNextChar('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
         else if (c == '"')
             stringLiteral();
+        else if (Character.isDigit(c))
+            numberLiteral();
         else
             Lox.error(line, "Unexpected token");
     }
@@ -75,6 +77,12 @@ public class Scanner {
         if (isAtEnd())
             return '\0';
         return source.charAt(current);
+    }
+
+    private char get2NextChar() {
+        if (current + 1 >= source.length())
+            return '\0';
+        return source.charAt(current + 1);
     }
 
     private char nextChar() {
@@ -103,6 +111,30 @@ public class Scanner {
 
         String literal = source.substring(start + 1, current - 1);
         addToken(TokenType.STRING, literal);
+    }
+
+    private void numberLiteral() {
+        analyzeNumber();
+
+        if (hasDecimals()) {
+            nextChar();
+            analyzeNumber();
+        }
+
+        String number = source.substring(start, current);
+        addToken(TokenType.NUMBER, number);
+    }
+
+    private void analyzeNumber() {
+        while (!isAtEnd() && (Character.isDigit(getNextChar()) || getNextChar() == '_')) {
+            char c = nextChar();
+            if (c == '_' && Character.isDigit(getNextChar()))
+                Lox.error(line, "numeric separators are not allowed at the end of numeric literals");
+        }
+    }
+
+    private boolean hasDecimals() {
+        return getNextChar() == '.' && Character.isDigit(get2NextChar());
     }
 
     private void skipLine() {

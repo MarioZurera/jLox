@@ -48,7 +48,7 @@ public class Scanner {
         keywords.put("return",  TokenType.RETURN);
         keywords.put("super",   TokenType.SUPER);
         keywords.put("this",    TokenType.THIS);
-        keywords.put("nil",     TokenType.NONE);
+        keywords.put("none",    TokenType.NONE);
         keywords.put("print",   TokenType.PRINT);
     }
 

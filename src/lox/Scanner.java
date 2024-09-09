@@ -76,15 +76,13 @@ public class Scanner {
         if (Character.isWhitespace(getNextChar())) {
             if (getNextChar() == '\n')
                 line++;
-            current++;
+            nextChar();
             return;
         }
 
         if (!matchOperatorToken() && !matchLiteralToken())
             Lox.error(line, "Syntax", "Unexpected token: " + source.charAt(current - 1));
     }
-
-
 
     private boolean matchOperatorToken() {
         return (attemptTokenMatch(2) || attemptTokenMatch(1));
@@ -113,11 +111,15 @@ public class Scanner {
         String lexeme = source.substring(start, current + length);
         TokenType type = operators.get(lexeme);
         if (type != null) {
-            current += length;
+            moveCursor(length);
             addToken(type);
             return true;
         }
         return false;
+    }
+
+    private void moveCursor(int numberOfElements) {
+        current += numberOfElements;
     }
 
     private char getNextChar() {

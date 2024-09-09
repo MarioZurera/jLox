@@ -30,6 +30,11 @@ public class Scanner {
 
     private void scanToken() {
         char c = nextChar();
+        if (Character.isWhitespace(c)) {
+            if (c == '\n')
+                line++;
+            return;
+        }
         if (c == '{')
             addToken(TokenType.LEFT_BRACE);
         else if (c == '}')

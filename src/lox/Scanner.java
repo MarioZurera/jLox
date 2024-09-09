@@ -1,7 +1,9 @@
 package lox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Scanner {
     private final String source;
@@ -9,6 +11,27 @@ public class Scanner {
     private int start = 0;
     private int current = 0;
     private int line = 1;
+    private static final Map<String, TokenType> keywords = new HashMap<>();
+
+    static {
+        keywords.put("var",    TokenType.VARIABLE);
+        keywords.put("fun",    TokenType.FUNCTION);
+        keywords.put("class",  TokenType.CLASS);
+        keywords.put("and",    TokenType.AND);
+        keywords.put("or",     TokenType.OR);
+        keywords.put("true",   TokenType.TRUE);
+        keywords.put("false",  TokenType.FALSE);
+        keywords.put("if",     TokenType.IF);
+        keywords.put("else",   TokenType.ELSE);
+        keywords.put("while",  TokenType.WHILE);
+        keywords.put("for",    TokenType.FOR);
+        keywords.put("return", TokenType.RETURN);
+        keywords.put("super",  TokenType.SUPER);
+        keywords.put("this",   TokenType.THIS);
+        keywords.put("nil",    TokenType.NONE);
+        keywords.put("print",  TokenType.PRINT);
+    }
+
 
     Scanner(String source) {
         this.source = source;
@@ -69,6 +92,8 @@ public class Scanner {
             stringLiteral();
         else if (Character.isDigit(c))
             numberLiteral();
+        else if (Character.isAlphabetic(c) || c == '_')
+            identifierLiteral();
         else
             Lox.error(line, "Unexpected token");
     }
@@ -126,7 +151,7 @@ public class Scanner {
     }
 
     private void analyzeNumber() {
-        while (!isAtEnd() && (Character.isDigit(getNextChar()) || getNextChar() == '_')) {
+        while (Character.isDigit(getNextChar()) || getNextChar() == '_') {
             char c = nextChar();
             if (c == '_' && Character.isDigit(getNextChar()))
                 Lox.error(line, "numeric separators are not allowed at the end of numeric literals");
@@ -135,6 +160,22 @@ public class Scanner {
 
     private boolean hasDecimals() {
         return getNextChar() == '.' && Character.isDigit(get2NextChar());
+    }
+
+    private void identifierLiteral() {
+        while (isAlphanumeric(getNextChar()) || getNextChar() == '_')
+            nextChar();
+        String identifier = source.substring(start, current);
+
+        TokenType type = keywords.get(identifier);
+        if (type == null)
+            type = TokenType.IDENTIFIER;
+
+        addToken(type);
+    }
+
+    private boolean isAlphanumeric(char c) {
+        return Character.isAlphabetic(c) || Character.isDigit(c);
     }
 
     private void skipLine() {

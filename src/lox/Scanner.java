@@ -138,13 +138,6 @@ public class Scanner {
         return source.charAt(current++);
     }
 
-    private boolean matchNextChar(char expected) {
-        if (isAtEnd() || getNextChar() != expected)
-            return false;
-        nextChar();
-        return true;
-    }
-
     private void stringLiteral() {
         while (!isAtEnd() && getNextChar() != '"')
         {

@@ -11,25 +11,45 @@ public class Scanner {
     private int start = 0;
     private int current = 0;
     private int line = 1;
+    private static final Map<String, TokenType> operators = new HashMap<>();
     private static final Map<String, TokenType> keywords = new HashMap<>();
 
     static {
-        keywords.put("var",    TokenType.VARIABLE);
-        keywords.put("fun",    TokenType.FUNCTION);
-        keywords.put("class",  TokenType.CLASS);
-        keywords.put("and",    TokenType.AND);
-        keywords.put("or",     TokenType.OR);
-        keywords.put("true",   TokenType.TRUE);
-        keywords.put("false",  TokenType.FALSE);
-        keywords.put("if",     TokenType.IF);
-        keywords.put("else",   TokenType.ELSE);
-        keywords.put("while",  TokenType.WHILE);
-        keywords.put("for",    TokenType.FOR);
-        keywords.put("return", TokenType.RETURN);
-        keywords.put("super",  TokenType.SUPER);
-        keywords.put("this",   TokenType.THIS);
-        keywords.put("nil",    TokenType.NONE);
-        keywords.put("print",  TokenType.PRINT);
+        operators.put("{",      TokenType.LEFT_BRACE);
+        operators.put("}",      TokenType.RIGHT_BRACE);
+        operators.put("(",      TokenType.LEFT_PAREN);
+        operators.put(")",      TokenType.RIGHT_PAREN);
+        operators.put(";",      TokenType.SEMICOLON);
+        operators.put(".",      TokenType.DOT);
+        operators.put(",",      TokenType.COMMA);
+        operators.put("+",      TokenType.PLUS);
+        operators.put("-",      TokenType.MINUS);
+        operators.put("*",      TokenType.STAR);
+        operators.put("/",      TokenType.SLASH);
+        operators.put("=",      TokenType.ASSIGN);
+        operators.put("!",      TokenType.NOT);
+        operators.put("<",      TokenType.LESS);
+        operators.put(">",      TokenType.GREATER);
+        operators.put("==",     TokenType.EQUAL);
+        operators.put("!=",     TokenType.UNEQUAL);
+        operators.put(">=",     TokenType.GREATER_EQUAL);
+        operators.put("<=",     TokenType.LESS_EQUAL);
+        keywords.put("var",     TokenType.VARIABLE);
+        keywords.put("fun",     TokenType.FUNCTION);
+        keywords.put("class",   TokenType.CLASS);
+        keywords.put("and",     TokenType.AND);
+        keywords.put("or",      TokenType.OR);
+        keywords.put("true",    TokenType.TRUE);
+        keywords.put("false",   TokenType.FALSE);
+        keywords.put("if",      TokenType.IF);
+        keywords.put("else",    TokenType.ELSE);
+        keywords.put("while",   TokenType.WHILE);
+        keywords.put("for",     TokenType.FOR);
+        keywords.put("return",  TokenType.RETURN);
+        keywords.put("super",   TokenType.SUPER);
+        keywords.put("this",    TokenType.THIS);
+        keywords.put("nil",     TokenType.NONE);
+        keywords.put("print",   TokenType.PRINT);
     }
 
 
@@ -48,54 +68,56 @@ public class Scanner {
     }
 
     private void scanToken() {
-        char c = nextChar();
-        if (Character.isWhitespace(c)) {
-            if (c == '\n')
-                line++;
+        if (getNextChar() == '/' && get2NextChar() == '/') {
+            skipLine();
             return;
         }
-        if (c == '{')
-            addToken(TokenType.LEFT_BRACE);
-        else if (c == '}')
-            addToken(TokenType.RIGHT_BRACE);
-        else if (c == '(')
-            addToken(TokenType.LEFT_PAREN);
-        else if (c == ')')
-            addToken(TokenType.RIGHT_PAREN);
-        else if (c == ';')
-            addToken(TokenType.SEMICOLON);
-        else if (c == ',')
-            addToken(TokenType.COMMA);
-        else if (c == '.')
-            addToken(TokenType.DOT);
-        else if (c == '+')
-            addToken(TokenType.PLUS);
-        else if (c == '-')
-            addToken(TokenType.MINUS);
-        else if (c == '*')
-            addToken(TokenType.STAR);
-        else if (c == '/') {
-            if (matchNextChar('/'))
-                skipLine();
-            else
-                addToken(TokenType.SLASH);
+
+        if (Character.isWhitespace(getNextChar())) {
+            if (getNextChar() == '\n')
+                line++;
+            current++;
+            return;
         }
-        else if (c == '!')
-            addToken(matchNextChar('=') ? TokenType.UNEQUAL : TokenType.NOT);
-        else if (c == '=')
-            addToken(matchNextChar('=') ? TokenType.EQUAL : TokenType.ASSIGN);
-        else if (c == '<')
-            addToken(matchNextChar('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
-        else if (c == '>')
-            addToken(matchNextChar('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
-        else if (c == '"')
+
+        if (!matchOperatorToken() && !matchLiteralToken())
+            Lox.error(line, "Unexpected token: " + current);
+    }
+
+
+
+    private boolean matchOperatorToken() {
+        return (attemptTokenMatch(2) || attemptTokenMatch(1));
+    }
+
+    private boolean matchLiteralToken() {
+        char currentChar = nextChar();
+        if (currentChar == '"') {
             stringLiteral();
-        else if (Character.isDigit(c))
+            return true;
+        }
+        if (Character.isDigit(currentChar)) {
             numberLiteral();
-        else if (Character.isAlphabetic(c) || c == '_')
+            return true;
+        }
+        if (Character.isAlphabetic(currentChar) || currentChar == '_') {
             identifierLiteral();
-        else
-            Lox.error(line, "Unexpected token");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean attemptTokenMatch(int length) {
+        if (current + length > source.length())
+            return false;
+        String lexeme = source.substring(start, current + length);
+        TokenType type = operators.get(lexeme);
+        if (type != null) {
+            current += length;
+            addToken(type);
+            return true;
+        }
+        return false;
     }
 
     private char getNextChar() {

@@ -1,9 +1,7 @@
 package lox;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Scanner {
     private final String source;
@@ -67,13 +65,10 @@ public class Scanner {
             addToken(matchNextChar('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
         else if (c == '>')
             addToken(matchNextChar('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
+        else if (c == '"')
+            stringLiteral();
         else
             Lox.error(line, "Unexpected token");
-    }
-
-    private void skipLine() {
-        while (!isAtEnd() && getNextChar() != '\n')
-            nextChar();
     }
 
     private char getNextChar() {
@@ -93,6 +88,26 @@ public class Scanner {
             return false;
         nextChar();
         return true;
+    }
+
+    private void stringLiteral() {
+        while (!isAtEnd() && getNextChar() != '"')
+        {
+            if (getNextChar() == '\n')
+                line++;
+            nextChar();
+        }
+        if (isAtEnd())
+            Lox.error(line, "Unterminated string literal");
+        nextChar();
+
+        String literal = source.substring(start + 1, current - 1);
+        addToken(TokenType.STRING, literal);
+    }
+
+    private void skipLine() {
+        while (!isAtEnd() && getNextChar() != '\n')
+            nextChar();
     }
 
     private void addToken(TokenType type) {

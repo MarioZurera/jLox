@@ -6,73 +6,73 @@ import java.util.List;
 import java.util.Map;
 
 public class Scanner {
-    private final String source;
-    private final List<Token> tokens = new ArrayList<>();
-    private int start = 0;
-    private int current = 0;
-    private int line = 1;
-    private static final Map<String, TokenType> operators = new HashMap<>();
-    private static final Map<String, TokenType> keywords = new HashMap<>();
+    private final String _source;
+    private final List<Token> _tokens = new ArrayList<>();
+    private static final Map<String, TokenType> _operators = new HashMap<>();
+    private static final Map<String, TokenType> _keywords = new HashMap<>();
+    private int _start = 0;
+    private int _current = 0;
+    private int _line = 1;
 
     static {
-        operators.put("{",      TokenType.LEFT_BRACE);
-        operators.put("}",      TokenType.RIGHT_BRACE);
-        operators.put("(",      TokenType.LEFT_PAREN);
-        operators.put(")",      TokenType.RIGHT_PAREN);
-        operators.put(";",      TokenType.SEMICOLON);
-        operators.put(".",      TokenType.DOT);
-        operators.put(",",      TokenType.COMMA);
-        operators.put("+",      TokenType.PLUS);
-        operators.put("-",      TokenType.MINUS);
-        operators.put("*",      TokenType.STAR);
-        operators.put("/",      TokenType.SLASH);
-        operators.put("=",      TokenType.ASSIGN);
-        operators.put("!",      TokenType.NOT);
-        operators.put("<",      TokenType.LESS);
-        operators.put(">",      TokenType.GREATER);
-        operators.put("==",     TokenType.EQUAL);
-        operators.put("!=",     TokenType.UNEQUAL);
-        operators.put(">=",     TokenType.GREATER_EQUAL);
-        operators.put("<=",     TokenType.LESS_EQUAL);
-        keywords.put("var",     TokenType.VARIABLE);
-        keywords.put("fun",     TokenType.FUNCTION);
-        keywords.put("class",   TokenType.CLASS);
-        keywords.put("and",     TokenType.AND);
-        keywords.put("or",      TokenType.OR);
-        keywords.put("true",    TokenType.TRUE);
-        keywords.put("false",   TokenType.FALSE);
-        keywords.put("if",      TokenType.IF);
-        keywords.put("else",    TokenType.ELSE);
-        keywords.put("while",   TokenType.WHILE);
-        keywords.put("for",     TokenType.FOR);
-        keywords.put("return",  TokenType.RETURN);
-        keywords.put("super",   TokenType.SUPER);
-        keywords.put("this",    TokenType.THIS);
-        keywords.put("none",    TokenType.NONE);
-        keywords.put("print",   TokenType.PRINT);
+        _operators.put("{",      TokenType.LEFT_BRACE);
+        _operators.put("}",      TokenType.RIGHT_BRACE);
+        _operators.put("(",      TokenType.LEFT_PAREN);
+        _operators.put(")",      TokenType.RIGHT_PAREN);
+        _operators.put(";",      TokenType.SEMICOLON);
+        _operators.put(".",      TokenType.DOT);
+        _operators.put(",",      TokenType.COMMA);
+        _operators.put("+",      TokenType.PLUS);
+        _operators.put("-",      TokenType.MINUS);
+        _operators.put("*",      TokenType.STAR);
+        _operators.put("/",      TokenType.SLASH);
+        _operators.put("=",      TokenType.ASSIGN);
+        _operators.put("!",      TokenType.NOT);
+        _operators.put("<",      TokenType.LESS);
+        _operators.put(">",      TokenType.GREATER);
+        _operators.put("==",     TokenType.EQUAL);
+        _operators.put("!=",     TokenType.UNEQUAL);
+        _operators.put(">=",     TokenType.GREATER_EQUAL);
+        _operators.put("<=",     TokenType.LESS_EQUAL);
+        _keywords.put("var",     TokenType.VARIABLE);
+        _keywords.put("fun",     TokenType.FUNCTION);
+        _keywords.put("class",   TokenType.CLASS);
+        _keywords.put("and",     TokenType.AND);
+        _keywords.put("or",      TokenType.OR);
+        _keywords.put("true",    TokenType.TRUE);
+        _keywords.put("false",   TokenType.FALSE);
+        _keywords.put("if",      TokenType.IF);
+        _keywords.put("else",    TokenType.ELSE);
+        _keywords.put("while",   TokenType.WHILE);
+        _keywords.put("for",     TokenType.FOR);
+        _keywords.put("return",  TokenType.RETURN);
+        _keywords.put("super",   TokenType.SUPER);
+        _keywords.put("this",    TokenType.THIS);
+        _keywords.put("none",    TokenType.NONE);
+        _keywords.put("print",   TokenType.PRINT);
     }
 
 
     Scanner(String source) {
-        this.source = source;
+        this._source = source;
     }
 
     List<Token> scanTokens() {
         while (!isAtEnd()) {
-            start = current;
-            scanToken();
+            _start = _current;
+            scanNextToken();
         }
 
-        tokens.add(new Token(TokenType.EOF, "", null, line));
-        return tokens;
+        _tokens.add(new Token(TokenType.EOF, "", null, _line));
+        return _tokens;
     }
 
-    private void scanToken() {
+    private void scanNextToken() {
         if (matchComment() || matchWhitespace())
             return;
 
         if (!matchOperatorToken() && !matchLiteralToken())
-            Lox.error(line, "Syntax", "Unexpected token: " + source.charAt(current - 1));
+            Lox.error(_line, "Syntax", "Unexpected token: " + _source.charAt(_current - 1));
     }
 
     private boolean matchComment() {
@@ -86,7 +86,7 @@ public class Scanner {
     private boolean matchWhitespace() {
         if (Character.isWhitespace(getNextChar())) {
             if (getNextChar() == '\n')
-                line++;
+                _line++;
             nextChar();
             return true;
         }
@@ -115,10 +115,10 @@ public class Scanner {
     }
 
     private boolean attemptTokenMatch(int length) {
-        if (current + length > source.length())
+        if (_current + length > _source.length())
             return false;
-        String lexeme = source.substring(start, current + length);
-        TokenType type = operators.get(lexeme);
+        String lexeme = _source.substring(_start, _current + length);
+        TokenType type = _operators.get(lexeme);
         if (type != null) {
             moveCursor(length);
             addToken(type);
@@ -128,39 +128,39 @@ public class Scanner {
     }
 
     private void moveCursor(int numberOfElements) {
-        current += numberOfElements;
+        _current += numberOfElements;
     }
 
     private char getNextChar() {
         if (isAtEnd())
             return '\0';
-        return source.charAt(current);
+        return _source.charAt(_current);
     }
 
     private char get2NextChar() {
-        if (current + 1 >= source.length())
+        if (_current + 1 >= _source.length())
             return '\0';
-        return source.charAt(current + 1);
+        return _source.charAt(_current + 1);
     }
 
     private char nextChar() {
         if (isAtEnd())
             return '\0';
-        return source.charAt(current++);
+        return _source.charAt(_current++);
     }
 
     private void stringLiteral() {
         while (!isAtEnd() && getNextChar() != '"')
         {
             if (getNextChar() == '\n')
-                line++;
+                _line++;
             nextChar();
         }
         if (isAtEnd())
-            Lox.error(line, "Syntax", "Unterminated string literal");
+            Lox.error(_line, "Syntax", "Unterminated string literal");
         nextChar();
 
-        String literal = source.substring(start + 1, current - 1);
+        String literal = _source.substring(_start + 1, _current - 1);
         addToken(TokenType.STRING, literal);
     }
 
@@ -172,7 +172,7 @@ public class Scanner {
             analyzeNumber();
         }
 
-        String text = source.substring(start, current).replace("_", "");
+        String text = _source.substring(_start, _current).replace("_", "");
         Double number = Double.parseDouble(text);
         addToken(TokenType.NUMBER, number);
     }
@@ -181,7 +181,7 @@ public class Scanner {
         while (Character.isDigit(getNextChar()) || getNextChar() == '_') {
             char c = nextChar();
             if (c == '_' && !Character.isDigit(getNextChar()))
-                Lox.error(line, "Syntax", "numeric separators are not allowed at the end of numeric literals");
+                Lox.error(_line, "Syntax", "numeric separators are not allowed at the end of numeric literals");
         }
     }
 
@@ -192,9 +192,9 @@ public class Scanner {
     private void identifierLiteral() {
         while (isAlphanumeric(getNextChar()) || getNextChar() == '_')
             nextChar();
-        String identifier = source.substring(start, current);
+        String identifier = _source.substring(_start, _current);
 
-        TokenType type = keywords.get(identifier);
+        TokenType type = _keywords.get(identifier);
         if (type == null)
             type = TokenType.IDENTIFIER;
 
@@ -215,11 +215,11 @@ public class Scanner {
     }
 
     private void addToken(TokenType type, Object literal) {
-        String lexeme = source.substring(start, current);
-        tokens.add(new Token(type, lexeme, literal, line));
+        String lexeme = _source.substring(_start, _current);
+        _tokens.add(new Token(type, lexeme, literal, _line));
     }
 
     private boolean isAtEnd() {
-        return current >= source.length();
+        return _current >= _source.length();
     }
 }

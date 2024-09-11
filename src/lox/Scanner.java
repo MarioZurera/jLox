@@ -19,6 +19,8 @@ public class Scanner {
         _operators.put("}",      TokenType.RIGHT_BRACE);
         _operators.put("(",      TokenType.LEFT_PAREN);
         _operators.put(")",      TokenType.RIGHT_PAREN);
+        _operators.put("[",      TokenType.LEFT_SQRPAREN);
+        _operators.put("]",      TokenType.RIGHT_SQRPAREN);
         _operators.put(";",      TokenType.SEMICOLON);
         _operators.put(".",      TokenType.DOT);
         _operators.put(",",      TokenType.COMMA);
@@ -26,6 +28,8 @@ public class Scanner {
         _operators.put("-",      TokenType.MINUS);
         _operators.put("*",      TokenType.STAR);
         _operators.put("/",      TokenType.SLASH);
+        _operators.put("++",     TokenType.INCREMENT);
+        _operators.put("--",     TokenType.DECREMENT);
         _operators.put("=",      TokenType.ASSIGN);
         _operators.put("!",      TokenType.NOT);
         _operators.put("<",      TokenType.LESS);

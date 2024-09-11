@@ -8,6 +8,8 @@ public enum TokenType {
     RIGHT_PAREN,    // )
     LEFT_BRACE,     // {
     RIGHT_BRACE,    // }
+    LEFT_SQRPAREN,  // [
+    RIGHT_SQRPAREN, // ]
     COMMA,          // ,
     DOT,            // .
     SEMICOLON,      // ;
@@ -18,6 +20,8 @@ public enum TokenType {
     MINUS,          // -
     STAR,           // *
     SLASH,          // /
+    INCREMENT,      // ++
+    DECREMENT,      // --
 
     // Comparison Token //
     NOT,            // !

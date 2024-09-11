@@ -71,12 +71,14 @@ public class Scanner {
         if (matchComment() || matchWhitespace())
             return;
 
-        if (!matchOperatorToken() && !matchLiteralToken())
-            Lox.error(_line, "Syntax", "Unexpected token: " + _source.charAt(_current - 1));
+        if (!matchOperatorToken() && !matchLiteralToken()) {
+            Lox.error(_line, "Syntax", "Unexpected token: " + getCurrentChar());
+            nextChar();
+        }
     }
 
     private boolean matchComment() {
-        if (getNextChar() == '/' && get2NextChar() == '/') {
+        if (getCurrentChar() == '/' && getNextChar() == '/') {
             skipLine();
             return true;
         }
@@ -84,8 +86,8 @@ public class Scanner {
     }
 
     private boolean matchWhitespace() {
-        if (Character.isWhitespace(getNextChar())) {
-            if (getNextChar() == '\n')
+        if (Character.isWhitespace(getCurrentChar())) {
+            if (getCurrentChar() == '\n')
                 _line++;
             nextChar();
             return true;
@@ -98,16 +100,15 @@ public class Scanner {
     }
 
     private boolean matchLiteralToken() {
-        char currentChar = nextChar();
-        if (currentChar == '"') {
+        if (getCurrentChar() == '"') {
             stringLiteral();
             return true;
         }
-        if (Character.isDigit(currentChar)) {
+        if (Character.isDigit(getCurrentChar())) {
             numberLiteral();
             return true;
         }
-        if (Character.isAlphabetic(currentChar) || currentChar == '_') {
+        if (Character.isAlphabetic(getCurrentChar()) || getCurrentChar() == '_') {
             identifierLiteral();
             return true;
         }
@@ -131,28 +132,26 @@ public class Scanner {
         _current += numberOfElements;
     }
 
-    private char getNextChar() {
+    private char getCurrentChar() {
         if (isAtEnd())
             return '\0';
         return _source.charAt(_current);
     }
 
-    private char get2NextChar() {
+    private char getNextChar() {
         if (_current + 1 >= _source.length())
             return '\0';
         return _source.charAt(_current + 1);
     }
 
-    private char nextChar() {
-        if (isAtEnd())
-            return '\0';
-        return _source.charAt(_current++);
+    private void nextChar() {
+        moveCursor(1);
     }
 
     private void stringLiteral() {
-        while (!isAtEnd() && getNextChar() != '"')
+        while (!isAtEnd() && getCurrentChar() != '"')
         {
-            if (getNextChar() == '\n')
+            if (getCurrentChar() == '\n')
                 _line++;
             nextChar();
         }
@@ -178,19 +177,19 @@ public class Scanner {
     }
 
     private void analyzeNumber() {
-        while (Character.isDigit(getNextChar()) || getNextChar() == '_') {
-            char c = nextChar();
-            if (c == '_' && !Character.isDigit(getNextChar()))
+        while (Character.isDigit(getCurrentChar()) || getCurrentChar() == '_') {
+            if (getCurrentChar() == '_' && !Character.isDigit(getNextChar()))
                 Lox.error(_line, "Syntax", "numeric separators are not allowed at the end of numeric literals");
+            nextChar();
         }
     }
 
     private boolean hasDecimals() {
-        return getNextChar() == '.' && Character.isDigit(get2NextChar());
+        return getCurrentChar() == '.' && Character.isDigit(getNextChar());
     }
 
     private void identifierLiteral() {
-        while (isAlphanumeric(getNextChar()) || getNextChar() == '_')
+        while (isAlphanumeric(getCurrentChar()) || getCurrentChar() == '_')
             nextChar();
         String identifier = _source.substring(_start, _current);
 
@@ -206,7 +205,7 @@ public class Scanner {
     }
 
     private void skipLine() {
-        while (!isAtEnd() && getNextChar() != '\n')
+        while (!isAtEnd() && getCurrentChar() != '\n')
             nextChar();
     }
 

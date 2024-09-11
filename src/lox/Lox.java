@@ -53,13 +53,18 @@ public class Lox {
     }
 
     static void error(int line, String module, String message) {
-        report(line, module, message);
+        report("Error", line, module, message);
+        hadError = true;
     }
 
-    private static void report(int line, String where, String message) {
+    static void warning(int line, String module, String message) {
+        report("Warning", line, module, message);
+    }
+
+    private static void report(String type, int line, String module, String message) {
         System.err.println(
-                "[Line " + line + "] " + where + "Error: " + message
+                "[Line " + line + "] " + module + type + ": " + message
         );
-        hadError = true;
+
     }
 }
